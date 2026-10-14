@@ -1,0 +1,52 @@
+# Copy to config.yaml. Keep credentials in environment variables.
+jira:
+  transport: stdio # or streamable-http
+  command: "uv" # stdio command, e.g. uv
+  args: [] # e.g. ["run", "--directory", "C:/AIProjects/jira-mcp", "server.py"]
+  url: "" # streamable-http only
+  env: {} # e.g. JIRA_TOKEN: "${ENV:JIRA_MCP_TOKEN}"
+  tools:
+    get_issue:
+      name: "" # tool returning one Jira issue with issue links when possible
+      arguments:
+        issue_key: "${issue_key}"
+    get_dependencies:
+      name: "" # required if get_issue does not return dependency fields/links
+      arguments:
+        issue_key: "${issue_key}"
+    update_status:
+      name: "" # optional; leave blank to avoid changing Jira
+      arguments:
+        issue_key: "${issue_key}"
+        status: "${status}"
+  acceptance_criteria_field: "" # optional path such as fields.customfield_12345
+  status:
+    complete: ["done", "resolved", "closed"]
+    implementation_complete: "In Review"
+  dependency_links:
+    inward: ["is blocked by", "depends on"]
+    outward: ["depends on", "is blocked by"]
+
+repositories:
+  specifications: "" # absolute path to read-only spec repository
+  coding: "" # absolute path to Spring Boot Git repository
+
+spec_context:
+  include:
+    - "architecture/**/*.md"
+    - "requirements/**/*.md"
+    - "technical-design/**/*.md"
+    - "AGENTS.md"
+  max_files: 12
+  max_chars: 60000
+
+execution:
+  codex_command: ["codex", "exec", "--full-auto"]
+  verification_commands:
+    - ["mvn", "verify"]
+  max_attempts_per_ticket: 3
+  command_timeout_seconds: 3600
+  branch_prefix: "agent/jira"
+
+state:
+  directory: "runs"
